@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>INCES | Registro Integral de Equipos</title>
+    <!-- Font Awesome 6 (gratuito) para iconos modernos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: mezcla de elegancia y legibilidad -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #fef5f5;  /* base blanca con leve calidez */
+            font-family: 'Inter', sans-serif;
+            color: #1e1e2a;
+            line-height: 1.4;
+            padding: 2rem 1.5rem;
+        }
+
+        /* contenedor principal */
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(224, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* header con branding INCES */
+        .brand-header {
+            background: white;
+            padding: 1.25rem 2rem;
+            border-bottom: 3px solid #e30613;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+
+        .inces-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #b91c1c 0%, #e30613 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: none;
+            position: relative;
+            display: inline-block;
+        }
+        .inces-logo::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: #e30613;
+            border-radius: 3px;
+        }
+        .header-sub {
+            text-align: right;
+        }
+        .header-sub h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d2d3a;
+        }
+        .header-sub p {
+            font-size: 0.8rem;
+            color: #6c6c7c;
+            font-weight: 400;
+        }
+
+        /* navegación tipo pestañas (botones desplegables) */
+        .tabs-nav {
+            display: flex;
+            flex-wrap: wrap;
+            background: #fff;
+            padding: 0 1.5rem;
+            gap: 0.35rem;
+            border-bottom: 1px solid #ffe1e1;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 1rem 1.4rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            color: #5a5a6e;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 20px 20px 0 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .tab-btn i {
+            font-size: 1.1rem;
+            color: #e30613;
+        }
+        .tab-btn:hover {
+            background: #fff2f2;
+            color: #b91c1c;
+        }
+        .tab-btn.active {
+            background: #fff2f2;
+            color: #b91c1c;
+            border-bottom: 3px solid #e30613;
+            font-weight: 700;
+        }
+
+        /* contenedor de contenido (solo una pestaña visible a la vez) */
+        .tabs-content {
+            padding: 2rem 2rem 2.5rem;
+            background: #ffffff;
+        }
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.25s ease-out;
+        }
+        .tab-pane.active-pane {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* tarjetas internas elegantes */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.8rem;
+        }
+        .card-spec {
+            background: #fefafa;
+            border-radius: 1.2rem;
+            padding: 1.25rem 1.4rem;
+            border: 1px solid #ffe2e2;
+            transition: box-shadow 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .card-spec:hover {
+            border-color: #ffc9c9;
+            box-shadow: 0 8px 20px rgba(227, 6, 19, 0.05);
+        }
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #b91c1c;
+            border-left: 4px solid #e30613;
+            padding-left: 0.75rem;
+            margin-bottom: 1.25rem;
+            letter-spacing: -0.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title i {
+            font-size: 1.1rem;
+            color: #e30613;
+        }
+        .spec-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .spec-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px dashed #ffe0e0;
+            padding-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .spec-label {
+            font-weight: 600;
+            color: #3c3c4a;
+            width: 35%;
+            min-width: 110px;
+        }
+        .spec-value {
+            color: #1f1f2b;
+            font-weight: 500;
+            text-align: right;
+            word-break: break-word;
+            width: 60%;
+        }
+        .badge-semaphore {
+            display: inline-block;
+            background: #e9f7eb;
+            color: #2e7d32;
+            border-radius: 40px;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .badge-semaphore.yellow {
+            background: #fff4e0;
+            color: #b95b0b;
+        }
+        .badge-semaphore.red {
+            background: #ffe6e5;
+            color: #c62828;
+        }
+
+        /* para sección de hardware en bloque compacto */
+        .subgroup {
+            margin-top: 0.5rem;
+        }
+        .subgroup h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #e30613;
+            margin: 1rem 0 0.5rem 0;
+            letter-spacing: 0.5px;
+        }
+        hr {
+            margin: 0.5rem 0;
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, #ffe0e0, transparent);
+        }
+
+        /* responsivo */
+        @media (max-width: 780px) {
+            body {
+                padding: 1rem;
+            }
+            .tabs-nav {
+                padding: 0 0.5rem;
+                justify-content: center;
+            }
+            .tab-btn {
+                padding: 0.7rem 1rem;
+                font-size: 0.8rem;
+            }
+            .tab-btn i {
+                font-size: 0.9rem;
+            }
+            .tabs-content {
+                padding: 1.5rem;
+            }
+            .spec-item {
+                flex-direction: column;
+                gap: 0.2rem;
+            }
+            .spec-label {
+                width: 100%;
+            }
+            .spec-value {
+                width: 100%;
+                text-align: left;
+                padding-left: 0.5rem;
+            }
+            .brand-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-sub {
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* footer elegante */
+        .footer-note {
+            background: #fef7f7;
+            border-top: 1px solid #fee2e2;
+            padding: 1rem 2rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #a0a0b0;
+            font-weight: 400;
+        }
+
+        /* detalles de tooltip y estilo para valores nulos */
+        .empty-value {
+            color: #b9b9c8;
+            font-style: italic;
+            font-weight: 400;
+        }
+        i.fa, i.far, i.fas {
+            margin-right: 4px;
+        }
+
+        /* Estilo base del badge */
+        .badge-semaphore {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Colores dinámicos según el estado */
+        .badge-semaphore.verde, .badge-semaphore.green {
+            background: #e9f7eb;
+            color: #2e7d32;
+        }
+
+        .badge-semaphore.amarillo, .badge-semaphore.yellow {
+            background: #fff4e0;
+            color: #b95b0b;
+        }
+
+        .badge-semaphore.rojo, .badge-semaphore.red {
+            background: #ffe6e5;
+            color: #c62828;
+        }
+    </style>
+    <!-- Librería de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="dashboard">
+    <div class="brand-header">
+        <div>
+            <span class="inces-logo"><i class="fas fa-microchip" style="font-size: 1.6rem; background: none; color: #e30613; margin-right: 10px;"></i>INCES</span>
+            <div style="font-size: 0.75rem; margin-top: 8px; color: #e30613; font-weight: 500;">Instituto Nacional de Capacitación y Educación Socialista</div>
+        </div>
+        <div class="header-sub">
+            <h1>Registro Integral de Equipos 2025</h1>
+            <p>Gestión tecnológica · Hardware y software unificado</p>
+        </div>
+    </div>
+
+    <!-- PESTAÑAS (botones desplegables) -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" data-tab="tab1"><i class="fas fa-info-circle"></i> Información General</button>
+        <button class="tab-btn" data-tab="tab2"><i class="fas fa-desktop"></i> Identificación</button>
+        <button class="tab-btn" data-tab="tab3"><i class="fas fa-microchip"></i> Hardware</button>
+        <button class="tab-btn" data-tab="tab4"><i class="fas fa-keyboard"></i> Periféricos</button>
+        <button class="tab-btn" data-tab="tab5"><i class="fas fa-cloud-upload-alt"></i> Software & Red</button>
+    </div>
+
+    <div class="tabs-content">
+        <!-- PANEL 1: INFORMACIÓN GENERAL -->
+        <div class="tab-pane active-pane" id="tab1">
+            <div class="info-grid">
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-calendar-alt"></i> Datos de registro</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Fecha de registro:</span><span id="fecha_de_registro" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Ubicación:</span><span id="ubicación" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Indicador semáforo:</span><span id="semaforo_1" class="spec-value"><span class="badge-semaphore"><i class="fas fa-circle" style="font-size: 0.65rem;"></i> ...</span></span></div>
+                        <div class="spec-item"><span class="spec-label">Encuestador:</span><span id="encuestador" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Código (dejar blanco):</span><span id="codigo" class="spec-value empty-value">...</span></div>
+                    </div>
+                </div>
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-clipboard-list"></i> Resumen estado</div>
+                    <div class="spec-list">
+                       <!-- <div class="spec-item"><span class="spec-label">Condición general:</span><span id="Condicion_generals" class="spec-value">...</span></div>-->
+                        <div class="spec-item"><span class="spec-label">Departamento:</span><span id="departamento" class="spec-value">...</span></div>
+                       <!-- <div class="spec-item"><span class="spec-label">Última actualización:</span><span id="ultima_actualizacion" class="spec-value">...</span></div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL 2: IDENTIFICACIÓN DEL EQUIPO -->
+        <div class="tab-pane" id="tab2">
+            <div class="info-grid">
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-tag"></i> Equipo y etiquetado</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Nombre del PC:</span><span id="Hostname" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Nombre del usuario:</span><span id="user_1" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Contraseña del equipo:</span><span id="key" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Tipo de equipo:</span><span id="tipo_equipo" class="spec-value"><i class="fas fa-computer"></i> ...</span></div>
+                        <div class="spec-item"><span class="spec-label">Marca:</span><span id="marca_equipo" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Modelo:</span><span id="modelo_equipo" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Serial (SN):</span><span id="serial_equipo" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Nro. de Activo:</span><span id="n_activo_1" class="spec-value">...</span></div>
+                    </div>
+                </div>
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-qrcode"></i> Inventario interno</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Código patrimonial:</span><span id="n_activo_2" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Etiqueta inventario:</span><span id="semaforo_2"class="spec-value">...</span></div>
+                        <!-- <div class="spec-item"><span class="spec-label">Usuario responsable:</span><span id="user_2" class="spec-value">...</span></div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL 3: HARDWARE (procesador, almacenamiento, RAM, tarjeta madre) -->
+        <div class="tab-pane" id="tab3">
+            <div class="info-grid">
+                <!-- Procesador -->
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-brain"></i> Procesador (CPU)</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Marca:</span><span id="marca_procesador" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Modelo:</span><span id="modelo_procesador" class="spec-value">...</span></div>
+                        <!-- <div class="spec-item"><span class="spec-label">Arquitectura:</span><span id="arquitectura" class="spec-value">...</span></div> -->
+                    </div>
+                </div>
+                <!-- Almacenamiento -->
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-hdd"></i> Almacenamiento</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Tipo:</span><span id="tipo_disco" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Marca:</span><span id="marca_disco" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Capacidad:</span><span id="capacidad_disco" class="spec-value">...</span></div>
+                        <!-- <div class="spec-item"><span class="spec-label">Interfaz:</span><span id="interfaz-discos" class="spec-value">...</span></div> -->
+                    </div>
+                </div>
+                <!-- Memoria RAM -->
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-memory"></i> Memoria RAM</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Tipo:</span><span id="tipo_ram" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Cantidad de módulos:</span><span id="slots_ram" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Capacidad total:</span><span id="capacidad_ram" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Serial(es):</span><span id="serial_ram" class="spec-value">...</span></div>
+                    </div>
+                </div>
+                <!-- Tarjeta Madre -->
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-microchip"></i> Tarjeta Madre</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Marca:</span><span id="marca-mother" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Modelo:</span><span id="modelo_mother" class="spec-value">...</span></div>
+                        <!-- <div class="spec-item"><span class="spec-label">Chipset:</span><span id="chipset" class="spec-value">...</span></div> -->
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 0.5rem; font-size:12px; color:#afafc0; text-align: right;"><i class="fas fa-check-circle" style="color:#2e7d32;"></i> Componentes verificados en campo</div>
+        </div>
+
+        <!-- PANEL 4: PERIFÉRICOS Y ACCESORIOS (teclado, mouse, cornetas, regulador) -->
+        <div class="tab-pane" id="tab4">
+            <div class="info-grid">
+                <!-- Teclado -->
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-keyboard"></i> Teclado</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Marca:</span><span id="marca_keyboard" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Modelo:</span><span id="modelo_keyboard" class="spec-value empty-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Serial:</span><span id="serial_keyboard" class="spec-value empty-value">...</span></div>
+                    </div>
+                </div>
+                <!-- Mouse -->
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-mouse-pointer"></i> Mouse</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Marca:</span><span id="marca_mouse" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Modelo:</span><span id="modelo_mouse" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Serial:</span><span id="serial_mouse" class="spec-value empty-value">...</span></div>
+                    </div>
+                </div>
+                <!-- Cornetas / Altavoces -->
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-volume-up"></i> Cornetas / Altavoces</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Marca:</span><span id="marca_volume" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Modelo:</span><span id="modelo_volume" class="spec-value empty-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Serial:</span><span id="serial_volume" class="spec-value empty-value">...</span></div>
+                    </div>
+                </div>
+                <!-- Regulador / UPS -->
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-bolt"></i> Regulador / UPS</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Marca:</span><span id="marca_bolt" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Modelo:</span><span id="modelo_bolt" class="spec-value empty-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Serial:</span><span id="serial_bolt" class="spec-value empty-value">...</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL 5: SOFTWARE Y CONECTIVIDAD -->
+        <div class="tab-pane" id="tab5">
+            <div class="info-grid">
+                <div class="card-spec">
+                    <div class="card-title"><i class="fab fa-windows"></i> Sistema Operativo</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Tipo de SO:</span><span id="tipo_os" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Edición / versión:</span><span id="version_os" class="spec-value">...</span></div>
+                        <div class="spec-item"><span class="spec-label">Arquitectura:</span><span id="arquitectura_os" class="spec-value">...</span></div>
+                    </div>
+                </div>
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-file-excel"></i> Microsoft Office</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Versión de Office:</span><span id="version_office" class="spec-value">...</span></div>
+                        <!-- <div class="spec-item"><span class="spec-label">Productividad:</span><span id="productividad_office" class="spec-value">...</span></div> -->
+                    </div>
+                </div>
+                <div class="card-spec">
+                    <div class="card-title"><i class="fas fa-globe"></i> Conectividad a Internet</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">Tipo de red:</span><span id="tipo_red" class="spec-value">...</span></div>
+                    <!--    <div class="spec-item"><span class="spec-label">Acceso:</span><span id="acceso_red" class="spec-value">...</span></div> -->
+                    <!--    <div class="spec-item"><span class="spec-label">Estado:</span><span id="estado_red" class="spec-value">...</span></div> -->
+                    </div>
+                </div>
+            </div>
+            <!-- adicional nota licenciamiento -->
+            <div style="margin-top: 1.2rem; background: #fef5f0; border-radius: 1rem; padding: 0.8rem 1.2rem; border-left: 4px solid #e30613;">
+                <i class="fas fa-shield-alt" style="color:#e30613;"></i> <strong>Licenciamiento</strong> — Software propietario bajo normativa INCES. Actualizaciones centralizadas.
+            </div>
+        </div>
+    </div>
+    <div class="footer-note">
+        <i class="far fa-registered"></i> Registro Técnico Integral | INCES
+    </div>
+</div>
+
+<script>
+    // 1. Configuración de conexión
+    const SUPABASE_URL = 'https://ruokxwexqtbeblbvbnog.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Q0bMBRhT9B6l2qMX71LFOw_PzA6772h';
+    // ✅ CORRECCIÓN: usar un nombre distinto para el cliente
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // 2. Obtener el ID de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const computerId = urlParams.get('id');
+
+    // --- 3. FUNCIÓN DE PESTAÑAS (CORREGIDA) ---
+    function activarNavegacion() {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const panes = document.querySelectorAll('.tab-pane');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tabId = this.getAttribute('data-tab');
+                console.log("Cambiando a pestaña:", tabId);
+
+                tabBtns.forEach(b => b.classList.remove('active'));
+                panes.forEach(p => p.classList.remove('active-pane'));
+
+                this.classList.add('active');
+                const targetPane = document.getElementById(tabId);
+                if (targetPane) {
+                    targetPane.classList.add('active-pane');
+                }
+            });
+        });
+    }
+
+    // --- 4. FUNCIÓN PARA CARGAR DATOS (usando supabaseClient) ---
+    async function cargarDatosComputadora() {
+        if (!computerId) {
+            console.error("No se encontró un ID en la URL");
+            return;
+        }
+
+        // ✅ AHORA USAMOS supabaseClient en lugar de supabase
+        const { data, error } = await supabaseClient
+            .from('equipo')
+            .select('*')
+            .eq('id', computerId)
+            .single();
+
+        if (error) {
+            console.error("Error al obtener datos:", error.message);
+            return;
+        }
+
+        if (data) {
+            // PANEL 1: INFORMACIÓN GENERAL
+            document.getElementById('fecha_de_registro').innerText = data.marca_temporal || '...';
+            document.getElementById('ubicación').innerText = data.ubicacion || '...';
+
+            const estadoSemaforo = data.indicador_semaforo || 'Desconocido';
+            const claseColor = estadoSemaforo.toLowerCase();
+            document.getElementById('semaforo_1').innerHTML = `
+                <span class="badge-semaphore ${claseColor}">
+                    <i class="fas fa-circle" style="font-size: 0.65rem;"></i> ${estadoSemaforo}
+                </span>`;
+            document.getElementById('encuestador').innerText = data.nombre_y_apellido_del_encuestador || '...';
+            document.getElementById('codigo').innerText = data['codigo_(dejar_en_blanco)'] || 'N/A';
+            document.getElementById('departamento').innerText = data.ubicacion || '...';
+
+            // PANEL 2: IDENTIFICACIÓN
+            document.getElementById('Hostname').innerText = data['nombre_del_pc_(del_equipo)'] || '...';
+            document.getElementById('user_1').innerText = data.nombre_del_usuario || '...';
+            document.getElementById('key').innerText = data.contrasena_del_equipo || '...';
+            document.getElementById('tipo_equipo').innerHTML = `<i class="fas fa-computer"></i> ${data.tipo_de_equipo || '...'}`;
+            document.getElementById('marca_equipo').innerText = data.marca || '...';
+            document.getElementById('modelo_equipo').innerText = data.modelo || '...';
+            document.getElementById('serial_equipo').innerText = data.serial || '...';
+            document.getElementById('n_activo_1').innerText = data['nro._de_activo'] || '...';
+            document.getElementById('n_activo_2').innerText = data['nro._de_activo'] || '...';
+            document.getElementById('semaforo_2').innerText = data.indicador_semaforo || '...';
+
+            // PANEL 3: HARDWARE
+            document.getElementById('marca_procesador').innerText = data.marca_del_procesador || '...';
+            document.getElementById('modelo_procesador').innerText = data.modelo_del_procesador || '...';
+            document.getElementById('tipo_disco').innerText = data.tipo_de_disco_duro || '...';
+            document.getElementById('marca_disco').innerText = data.marca_del_disco_duro || '...';
+            document.getElementById('capacidad_disco').innerText = data.capacidad_del_disco_duro || '...';
+            document.getElementById('tipo_ram').innerText = data.tipo_de_memoria_ram || '...';
+            document.getElementById('slots_ram').innerText = data.cantidad_de_modulos_de_memoria_ram || '...';
+            document.getElementById('capacidad_ram').innerText = data.capacidad_total_de_la_memoria_ram || '...';
+            document.getElementById('serial_ram').innerText = data['serial(es)_de_la_memoria_ram'] || '...';
+            document.getElementById('marca-mother').innerText = data.marca_de_la_tarjeta_madre || '...';
+            document.getElementById('modelo_mother').innerText = data.modelo_de_la_tarjeta_madre || '...';
+
+            // PANEL 4: PERIFÉRICOS
+            document.getElementById('marca_keyboard').innerText = data.marca_del_teclado || '...';
+            document.getElementById('modelo_keyboard').innerText = data.modelo_del_teclado || '...';
+            document.getElementById('serial_keyboard').innerText = data.serial_del_teclado || '...';
+            document.getElementById('marca_mouse').innerText = data.marca_del_mouse || '...';
+            document.getElementById('modelo_mouse').innerText = data.modelo_del_mouse || '...';
+            document.getElementById('serial_mouse').innerText = data.serial_del_mouse || '...';
+            document.getElementById('marca_volume').innerText = data.marca_de_las_cornetas || '...';
+            document.getElementById('modelo_volume').innerText = data.modelo_de_las_cornetas || '...';
+            document.getElementById('serial_volume').innerText = data.serial_de_las_cornetas || '...';
+            document.getElementById('marca_bolt').innerText = data.marca_del_regulador || '...';
+            document.getElementById('modelo_bolt').innerText = data.modelo_del_regulador || '...';
+            document.getElementById('serial_bolt').innerText = data.serial_del_regulador || '...';
+
+            // PANEL 5: SOFTWARE & RED
+            document.getElementById('tipo_os').innerText = data.tipo_de_sistema_operarito || '...';
+            document.getElementById('version_office').innerText = data.version_de_office || '...';
+            document.getElementById('tipo_red').innerText = data.tipo_de_red_a_internet || '...';
+        }
+    }
+
+    // --- 5. INICIALIZACIÓN ---
+    document.addEventListener('DOMContentLoaded', () => {
+        activarNavegacion();
+        cargarDatosComputadora();
+    });
+</script>
+
+</body>
+</html>
